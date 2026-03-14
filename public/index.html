@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Solve</title>
+    <style>
+        body { background: #1e1e2e; color: #f8f8f2; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #282a36; padding: 40px; border-radius: 10px; text-align: center; width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: #bd93f9; }
+        input, textarea { width: 90%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #44475a; background: #1e1e2e; color: white; font-size: 16px; }
+        textarea { height: 250px; font-family: monospace; resize: none; }
+        button { background: #bd93f9; color: #282a36; border: none; padding: 12px 24px; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        button:hover { background: #ff79c6; }
+        button:disabled { background: #6272a4; cursor: not-allowed; }
+        .hidden { display: none; }
+        #timer { font-size: 24px; font-weight: bold; color: #ff5555; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div id="loginScreen" class="container">
+        <h1>Split Solve Setup</h1>
+        <input type="text" id="teamId" placeholder="Team ID (e.g., Team_1)">
+        <input type="password" id="password" placeholder="Password">
+        <br><button onclick="login()">Login</button>
+        <p id="loginMessage" style="color: #ff5555;"></p>
+    </div>
+
+    <div id="codingScreen" class="container hidden">
+        <h1 id="phaseTitle">Phase 1: Member 1</h1>
+        <div id="timer">Waiting to start...</div>
+        <textarea id="codeEditor" placeholder="Start typing your logic..."></textarea>
+        <br><button id="actionBtn" onclick="savePhase()">Save & Start Switch Time</button>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
