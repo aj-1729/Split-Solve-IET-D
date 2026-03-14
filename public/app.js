@@ -7,13 +7,18 @@ const CODING_TIME = 300; // 5 minutes
 const EXPLAIN_TIME = 60; // 1 minute
 
 async function login() {
-    const teamId = document.getElementById('teamId').value;
-    const password = document.getElementById('password').value;
+    // .trim() removes accidental spaces at the beginning or end
+    const teamId = document.getElementById('teamId').value.trim(); 
+
+    if (!teamId) {
+        document.getElementById('loginMessage').innerText = "Please enter a Team Name!";
+        return;
+    }
 
     const response = await fetch('/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId, password })
+        body: JSON.stringify({ teamId }) // Only sending teamId now!
     });
 
     if (response.ok) {
@@ -22,10 +27,9 @@ async function login() {
         document.getElementById('codingScreen').classList.remove('hidden');
         startTimer(CODING_TIME, "coding");
     } else {
-        document.getElementById('loginMessage').innerText = "Invalid Credentials!";
+        document.getElementById('loginMessage').innerText = "Error starting event.";
     }
 }
-
 function startTimer(duration, mode) {
     clearInterval(timerInterval);
     let timeLeft = duration;
