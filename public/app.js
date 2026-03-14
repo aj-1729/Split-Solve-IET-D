@@ -59,18 +59,13 @@ function updateTimerDisplay(timeLeft) {
         `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
-async function savePhase() {
+// Notice we removed the word 'async' from the function definition
+function savePhase() { 
     clearInterval(timerInterval);
     const codeEditor = document.getElementById('codeEditor');
     const codeText = codeEditor.value;
 
-    // Save the code to the backend
-    await fetch('/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId: currentTeam, phase: currentPhase, codeText })
-    });
-
+    // 1. INSTANT UI UPDATE (The screen changes immediately)
     if (currentPhase === 1) {
         // --- 1 MINUTE EXPLANATION PHASE ---
         document.getElementById('phaseTitle').innerText = "Call your partner and explain everything to him till the time goes off!";
@@ -79,13 +74,20 @@ async function savePhase() {
         codeEditor.classList.add('hidden');
         document.getElementById('actionBtn').classList.add('hidden');
         
-        // Start the automatic 1-minute timer
+        // Start the automatic 1-minute timer instantly
         startTimer(EXPLAIN_TIME, "switching");
         
     } else {
         // Event finished for this team
         document.getElementById('codingScreen').innerHTML = "<h1>Event Completed!</h1><p>Great job. Your files are safely stored.</p>";
     }
+
+    // 2. BACKGROUND SAVE (This happens invisibly without freezing the screen)
+    fetch('/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamId: currentTeam, phase: currentPhase, codeText })
+    }).catch(err => console.error("Background save error:", err));
 }
 
 function startPhase2() {
