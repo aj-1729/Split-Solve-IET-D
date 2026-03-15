@@ -108,3 +108,19 @@ function startPhase2() {
     // Automatically start the Phase 2 coding timer
     startTimer(CODING_TIME, "coding");
 }
+
+// --- ANTI-CHEAT: SMART PASTE BLOCKER ---
+const codeEditor = document.getElementById('codeEditor');
+
+codeEditor.addEventListener('paste', (e) => {
+    // Get the text they are trying to paste
+    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+    
+    // Set your character limit (e.g., 50 characters)
+    const PASTE_LIMIT = 50; 
+
+    if (pastedText.length > PASTE_LIMIT) {
+        e.preventDefault(); // This physically stops the paste from happening
+        alert(`🚨 ANTI-CHEAT WARNING 🚨\n\nYou cannot paste more than ${PASTE_LIMIT} characters at once. Please type your code manually!`);
+    }
+});
