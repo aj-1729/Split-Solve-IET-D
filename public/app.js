@@ -37,6 +37,21 @@ async function login() {
                 matchBrackets: true,
                 indentUnit: 4
             });
+
+            // --- ANTI-CHEAT: IDE PASTE BLOCKER ---
+            // This is attached directly to the editor the moment it is created!
+            editorInstance.on('beforeChange', (instance, change) => {
+                if (change.origin === 'paste') {
+                    // Combine all pasted lines into one string to count the length
+                    const pastedText = change.text.join('\n');
+                    const PASTE_LIMIT = 50; 
+
+                    if (pastedText.length > PASTE_LIMIT) {
+                        change.cancel(); // Physically blocks the paste
+                        alert(`🚨 ANTI-CHEAT WARNING 🚨\n\nYou cannot paste more than ${PASTE_LIMIT} characters!`);
+                    }
+                }
+            });
         }
 
         startTimer(CODING_TIME, "coding");
@@ -49,7 +64,6 @@ function startTimer(duration, mode) {
     clearInterval(timerInterval);
     let timeLeft = duration;
     
-    // Update the clock immediately before the 1-second delay starts
     updateTimerDisplay(timeLeft);
     
     timerInterval = setInterval(() => {
@@ -59,9 +73,9 @@ function startTimer(duration, mode) {
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             if (mode === "coding") {
-                savePhase(); // Auto-save triggered here!
+                savePhase(); 
             } else if (mode === "switching") {
-                startPhase2(); // Auto-start Phase 2 triggered here!
+                startPhase2(); 
             }
         }
     }, 1000);
@@ -77,27 +91,20 @@ function updateTimerDisplay(timeLeft) {
 function savePhase() { 
     clearInterval(timerInterval);
     
-    // Grab the text from the new CodeMirror IDE
     const codeText = editorInstance.getValue();
 
-    // 1. INSTANT UI UPDATE (The screen changes immediately)
     if (currentPhase === 1) {
-        // --- 1 MINUTE EXPLANATION PHASE ---
         document.getElementById('phaseTitle').innerText = "Call your partner and explain everything to him till the time goes off!";
         
-        // Hide the CodeMirror editor and the save button
         editorInstance.getWrapperElement().classList.add('hidden');
         document.getElementById('actionBtn').classList.add('hidden');
         
-        // Start the automatic 1-minute timer instantly
         startTimer(EXPLAIN_TIME, "switching");
         
     } else {
-        // Event finished for this team
         document.getElementById('codingScreen').innerHTML = "<h1 class='glow-text'>Event Completed!</h1><p class='subtitle'>Great job. Your files are safely stored.</p>";
     }
 
-    // 2. BACKGROUND SAVE (This happens invisibly without freezing the screen)
     fetch('/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -109,36 +116,20 @@ function startPhase2() {
     currentPhase = 2;
     document.getElementById('phaseTitle').innerText = "Phase 2: Member 2";
     
-    // Bring the IDE back to the screen and clear it
     editorInstance.getWrapperElement().classList.remove('hidden');
     editorInstance.setValue(""); 
     
-    // Force a tiny visual refresh so the IDE doesn't glitch
     setTimeout(() => {
         editorInstance.refresh();
         editorInstance.focus();
     }, 10);
 
-    // Bring the save button back
     const btn = document.getElementById('actionBtn');
     btn.innerText = "Final Save";
     btn.classList.remove('hidden');
     
-    // Automatically start the Phase 2 coding timer
     startTimer(CODING_TIME, "coding");
 }
-
-// --- ANTI-CHEAT: SMART PASTE BLOCKER ---
-// Attached to the entire document so it never crashes on load
-document.addEventListener('paste', (e) => {
-    const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-    const PASTE_LIMIT = 50; 
-
-    if (pastedText.length > PASTE_LIMIT) {
-        e.preventDefault(); 
-        alert(`🚨 ANTI-CHEAT WARNING 🚨\n\nYou cannot paste more than ${PASTE_LIMIT} characters at once. Please type your code manually!`);
-    }
-});
 
 // --- ANTI-CHEAT: TAB SWITCH DETECTOR ---
 document.addEventListener('visibilitychange', () => {
