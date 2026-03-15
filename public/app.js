@@ -1,3 +1,4 @@
+let editorInstance; // Stores our IDE
 let currentTeam = "";
 let currentPhase = 1;
 let timerInterval;
@@ -25,11 +26,25 @@ async function login() {
         currentTeam = teamId;
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('codingScreen').classList.remove('hidden');
+        
+        // --- INITIALIZE CODEMIRROR IDE ---
+        if (!editorInstance) {
+            editorInstance = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
+                lineNumbers: true,
+                mode: "text/x-c++src", // Perfect for competitive programming
+                theme: "dracula",
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 4
+            });
+        }
+
         startTimer(CODING_TIME, "coding");
     } else {
         document.getElementById('loginMessage').innerText = "Error starting event.";
     }
 }
+
 function startTimer(duration, mode) {
     clearInterval(timerInterval);
     let timeLeft = duration;
@@ -59,19 +74,19 @@ function updateTimerDisplay(timeLeft) {
         `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
-// Notice we removed the word 'async' from the function definition
 function savePhase() { 
     clearInterval(timerInterval);
-    const codeEditor = document.getElementById('codeEditor');
-    const codeText = codeEditor.value;
+    
+    // Grab the text from the new CodeMirror IDE
+    const codeText = editorInstance.getValue();
 
     // 1. INSTANT UI UPDATE (The screen changes immediately)
     if (currentPhase === 1) {
         // --- 1 MINUTE EXPLANATION PHASE ---
         document.getElementById('phaseTitle').innerText = "Call your partner and explain everything to him till the time goes off!";
         
-        // Completely hide the text box and the save button
-        codeEditor.classList.add('hidden');
+        // Hide the CodeMirror editor and the save button
+        editorInstance.getWrapperElement().classList.add('hidden');
         document.getElementById('actionBtn').classList.add('hidden');
         
         // Start the automatic 1-minute timer instantly
@@ -79,7 +94,7 @@ function savePhase() {
         
     } else {
         // Event finished for this team
-        document.getElementById('codingScreen').innerHTML = "<h1>Event Completed!</h1><p>Great job. Your files are safely stored.</p>";
+        document.getElementById('codingScreen').innerHTML = "<h1 class='glow-text'>Event Completed!</h1><p class='subtitle'>Great job. Your files are safely stored.</p>";
     }
 
     // 2. BACKGROUND SAVE (This happens invisibly without freezing the screen)
@@ -94,11 +109,15 @@ function startPhase2() {
     currentPhase = 2;
     document.getElementById('phaseTitle').innerText = "Phase 2: Member 2";
     
-    // Bring the text box back to the screen and clear it
-    const codeEditor = document.getElementById('codeEditor');
-    codeEditor.classList.remove('hidden');
-    codeEditor.value = ""; 
-    codeEditor.focus();
+    // Bring the IDE back to the screen and clear it
+    editorInstance.getWrapperElement().classList.remove('hidden');
+    editorInstance.setValue(""); 
+    
+    // Force a tiny visual refresh so the IDE doesn't glitch
+    setTimeout(() => {
+        editorInstance.refresh();
+        editorInstance.focus();
+    }, 10);
 
     // Bring the save button back
     const btn = document.getElementById('actionBtn');
@@ -110,17 +129,29 @@ function startPhase2() {
 }
 
 // --- ANTI-CHEAT: SMART PASTE BLOCKER ---
-const codeEditor = document.getElementById('codeEditor');
-
-codeEditor.addEventListener('paste', (e) => {
-    // Get the text they are trying to paste
+// Attached to the entire document so it never crashes on load
+document.addEventListener('paste', (e) => {
     const pastedText = (e.clipboardData || window.clipboardData).getData('text');
-    
-    // Set your character limit (e.g., 50 characters)
     const PASTE_LIMIT = 50; 
 
     if (pastedText.length > PASTE_LIMIT) {
-        e.preventDefault(); // This physically stops the paste from happening
+        e.preventDefault(); 
         alert(`🚨 ANTI-CHEAT WARNING 🚨\n\nYou cannot paste more than ${PASTE_LIMIT} characters at once. Please type your code manually!`);
+    }
+});
+
+// --- ANTI-CHEAT: TAB SWITCH DETECTOR ---
+document.addEventListener('visibilitychange', () => {
+    const isCodingScreenVisible = !document.getElementById('codingScreen').classList.contains('hidden');
+    if (document.hidden && isCodingScreenVisible) {
+        alert("🚨 WARNING 🚨\n\nTab switching is not allowed during the competition! Stay on this screen.");
+    }
+});
+
+// --- ANTI-CHEAT: DISABLE RIGHT CLICK ---
+document.addEventListener('contextmenu', (e) => {
+    const isCodingScreenVisible = !document.getElementById('codingScreen').classList.contains('hidden');
+    if (isCodingScreenVisible) {
+        e.preventDefault(); 
     }
 });

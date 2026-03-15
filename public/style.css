@@ -1,0 +1,105 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #0b0c10; 
+    color: #c5c6c7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.container {
+    background: #1f2833;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(102, 252, 241, 0.15);
+    width: 90%;
+    max-width: 500px;
+}
+
+/* Badges for the Event Name */
+.header-badges {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.badge.bitotsav { background: #45a29e; color: #0b0c10; }
+.badge.iet { background: #66fcf1; color: #0b0c10; }
+
+/* Typography */
+.glow-text {
+    font-family: 'Orbitron', sans-serif;
+    color: #66fcf1;
+    text-shadow: 0 0 10px rgba(102, 252, 241, 0.4);
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+    letter-spacing: 2px;
+}
+.subtitle { font-size: 1rem; margin-bottom: 30px; color: #a3a8ad; }
+#timer { color: #ff5555; font-family: 'Orbitron', sans-serif; font-size: 1.8rem; margin-bottom: 15px;}
+
+/* Inputs and Buttons */
+input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #0b0c10;
+    border: 2px solid #45a29e;
+    border-radius: 8px;
+    color: #66fcf1;
+    font-size: 1.1rem;
+    outline: none;
+    transition: 0.3s;
+    text-align: center;
+}
+input:focus { box-shadow: 0 0 10px #45a29e; }
+
+.cyber-btn {
+    background: transparent;
+    color: #66fcf1;
+    border: 2px solid #66fcf1;
+    padding: 12px 30px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    width: 100%;
+}
+.cyber-btn:hover {
+    background: #66fcf1;
+    color: #0b0c10;
+    box-shadow: 0 0 15px #66fcf1;
+}
+
+.hidden { display: none !important; }
+
+/* Customizing the CodeMirror IDE */
+.CodeMirror {
+    text-align: left;
+    font-family: 'Fira Code', monospace;
+    font-size: 1.1rem;
+    height: 450px;
+    border-radius: 8px;
+    border: 1px solid #45a29e;
+}
+
+.made-by {
+    margin-top: 35px;
+    font-size: 0.85rem;
+    color: #45a29e;
+    font-family: 'Fira Code', monospace;
+}
