@@ -44,6 +44,32 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// --- ADMIN ROUTE: REGISTER NEW TEAMS ---
+app.post('/register', async (req, res) => {
+    const { teamId, password } = req.body;
+    
+    if (!teamId || !password) {
+        return res.status(400).json({ success: false, message: "Missing Team Name or Password." });
+    }
+
+    try {
+        // 1. Check if this team name is already taken
+        const existingTeam = await TeamData.findOne({ teamId: teamId });
+        if (existingTeam) {
+            return res.status(400).json({ success: false, message: "Error: This Team Name already exists!" });
+        }
+
+        // 2. Create the new team and save it to MongoDB
+        const newTeam = new TeamData({ teamId: teamId, password: password });
+        await newTeam.save();
+        
+        res.json({ success: true, message: `✅ Team '${teamId}' registered successfully!` });
+        
+    } catch (err) {
+        console.error("Registration Error:", err);
+        res.status(500).json({ success: false, message: "Server error while saving." });
+    }
+});
 
 app.post('/save', async (req, res) => {
     const { teamId, phase, codeText } = req.body;

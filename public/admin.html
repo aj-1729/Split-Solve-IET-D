@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Dashboard - Split Solve</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Orbitron:wght@500;700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container" style="max-width: 500px;">
+        <div class="header-badges">
+            <span class="badge iet" style="background: #ff5555;">ADMIN PANEL</span>
+        </div>
+        <h1 class="glow-text" style="font-size: 2rem;">Register Teams</h1>
+        <p class="subtitle">Quick-sync teams directly to MongoDB.</p>
+        
+        <input type="text" id="newTeamId" placeholder="New Team Name...">
+        <input type="text" id="newPassword" placeholder="Assign Password..." style="margin-top: 10px;"> 
+        
+        <button onclick="registerTeam()" class="cyber-btn" style="margin-top: 20px; background: #50fa7b; color: #282a36;">Create Team</button>
+        
+        <p id="adminMessage" style="margin-top: 15px; font-weight: bold;"></p>
+    </div>
+
+    <script>
+        async function registerTeam() {
+            const teamId = document.getElementById('newTeamId').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const messageEl = document.getElementById('adminMessage');
+
+            if (!teamId || !password) {
+                messageEl.style.color = "#ff5555";
+                messageEl.innerText = "Please fill in both fields.";
+                return;
+            }
+
+            messageEl.style.color = "#f1fa8c";
+            messageEl.innerText = "Syncing to database...";
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ teamId, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    messageEl.style.color = "#50fa7b";
+                    messageEl.innerText = data.message;
+                    
+                    // Clear the input boxes for the next team
+                    document.getElementById('newTeamId').value = "";
+                    document.getElementById('newPassword').value = "";
+                    document.getElementById('newTeamId').focus();
+                } else {
+                    messageEl.style.color = "#ff5555";
+                    messageEl.innerText = data.message;
+                }
+            } catch (err) {
+                messageEl.style.color = "#ff5555";
+                messageEl.innerText = "Connection error.";
+            }
+        }
+    </script>
+</body>
+</html>
