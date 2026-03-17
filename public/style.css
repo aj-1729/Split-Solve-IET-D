@@ -1,105 +1,188 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+    /* Sober Purple Palette */
+    --bg-color: #1a0f2e;
+    --container-bg: #2d1b4a;
+    --main-text: #e0b0ff;
+    --glow-text-color: #ffffff;
+    --main-purple-accent: #8833ff;
+    --purple-glow: 0 0 15px #d4acff;
+    --purple-glow-strong: 0 0 25px #d4acff, 0 0 45px #8833ff;
+    --border-purple: #4a3a6a;
+    --logo-label-color: #e0b0ff;
+}
+
+* {
+    box-sizing: border-box;
+}
 
 body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--main-text);
     font-family: 'Poppins', sans-serif;
-    background-color: #0b0c10; 
-    color: #c5c6c7;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    text-align: center;
+    overflow-x: hidden;
 }
 
 .container {
-    background: #1f2833;
-    padding: 40px;
+    background-color: var(--container-bg);
+    border: 2px solid var(--border-purple);
     border-radius: 12px;
-    box-shadow: 0 0 20px rgba(102, 252, 241, 0.15);
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    text-align: center;
     width: 90%;
-    max-width: 500px;
+    max-width: 550px;
+    transition: all 0.3s ease;
+    margin: 20px 0;
 }
 
-/* Badges for the Event Name */
-.header-badges {
+.hidden {
+    display: none !important;
+}
+
+/* --- Branding Header (NEW) --- */
+.admin-branding {
     display: flex;
+    align-items: flex-start;
     justify-content: center;
     gap: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--border-purple);
 }
-.badge {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-.badge.bitotsav { background: #45a29e; color: #0b0c10; }
-.badge.iet { background: #66fcf1; color: #0b0c10; }
 
-/* Typography */
+.branding-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 45%;
+}
+
+.branding-divider {
+    width: 2px;
+    height: 60px;
+    background-color: var(--border-purple);
+    align-self: center;
+}
+
+#bitotsav-logo {
+    max-height: 50px;
+    width: auto;
+    display: block;
+}
+
+#iet-logo {
+    max-height: 55px;
+    width: auto;
+    display: block;
+}
+
+.logo-label {
+    font-size: 0.7rem;
+    color: var(--logo-label-color);
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* --- Typeography & Effects --- */
 .glow-text {
     font-family: 'Orbitron', sans-serif;
-    color: #66fcf1;
-    text-shadow: 0 0 10px rgba(102, 252, 241, 0.4);
-    margin-bottom: 10px;
-    font-size: 2.5rem;
-    letter-spacing: 2px;
+    color: var(--glow-text-color);
+    text-shadow: var(--purple-glow-strong);
+    margin: 10px 0;
+    font-size: 3rem;
+    font-weight: 700;
 }
-.subtitle { font-size: 1rem; margin-bottom: 30px; color: #a3a8ad; }
-#timer { color: #ff5555; font-family: 'Orbitron', sans-serif; font-size: 1.8rem; margin-bottom: 15px;}
 
-/* Inputs and Buttons */
-input {
-    width: 100%;
-    padding: 15px;
-    margin-bottom: 20px;
-    background: #0b0c10;
-    border: 2px solid #45a29e;
-    border-radius: 8px;
-    color: #66fcf1;
+.subtitle {
+    color: #e0e0e0;
     font-size: 1.1rem;
-    outline: none;
-    transition: 0.3s;
-    text-align: center;
+    margin-top: 0;
+    font-weight: 300;
 }
-input:focus { box-shadow: 0 0 10px #45a29e; }
+
+/* --- Forms and Buttons --- */
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px 18px;
+    margin: 10px 0;
+    background-color: #1a0f2e;
+    border: 2px solid var(--border-purple);
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: var(--main-purple-accent);
+    box-shadow: var(--purple-glow);
+}
 
 .cyber-btn {
-    background: transparent;
-    color: #66fcf1;
-    border: 2px solid #66fcf1;
+    display: inline-block;
     padding: 12px 30px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: #ffffff;
+    background-color: var(--main-purple-accent);
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-transform: uppercase;
-    width: 100%;
+    box-shadow: var(--purple-glow);
+    margin-top: 15px;
 }
+
 .cyber-btn:hover {
-    background: #66fcf1;
-    color: #0b0c10;
-    box-shadow: 0 0 15px #66fcf1;
+    background-color: #a466ff;
+    box-shadow: 0 0 35px #d4acff;
+    transform: translateY(-2px);
 }
 
-.hidden { display: none !important; }
+.cyber-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 0 15px #d4acff;
+}
 
-/* Customizing the CodeMirror IDE */
+/* --- Coding Screen / CodeMirror --- */
+#timer {
+    color: #ff6666;
+    margin-top: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+#codeEditor {
+    display: none;
+    /* Hidden because CodeMirror replaces it */
+}
+
+/* Make CodeMirror fit our purple theme */
 .CodeMirror {
-    text-align: left;
-    font-family: 'Fira Code', monospace;
-    font-size: 1.1rem;
     height: 450px;
     border-radius: 8px;
-    border: 1px solid #45a29e;
+    font-family: 'Fira Code', monospace;
+    border: 1px solid var(--border-purple);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* --- Footer --- */
 .made-by {
-    margin-top: 35px;
-    font-size: 0.85rem;
-    color: #45a29e;
-    font-family: 'Fira Code', monospace;
+    font-size: 0.8rem;
+    color: var(--logo-label-color);
+    margin-top: 25px;
 }
