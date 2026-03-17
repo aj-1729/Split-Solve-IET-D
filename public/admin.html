@@ -18,7 +18,11 @@
         <input type="text" id="newTeamId" placeholder="New Team Name...">
         <input type="text" id="newPassword" placeholder="Assign Password..." style="margin-top: 10px;"> 
         
-        <button onclick="registerTeam()" class="cyber-btn" style="margin-top: 20px; background: #50fa7b; color: #282a36;">Create Team</button>
+        <hr style="border: 1px solid #444; margin: 20px 0;">
+        
+        <input type="password" id="adminPass" placeholder="Enter Organizer Passcode..." style="border-color: #ff5555;"> 
+        
+        <button onclick="registerTeam()" class="cyber-btn" style="margin-top: 20px; background: #50fa7b; color: #282a36;">CREATE TEAM</button>
         
         <p id="adminMessage" style="margin-top: 15px; font-weight: bold;"></p>
     </div>
@@ -27,11 +31,12 @@
         async function registerTeam() {
             const teamId = document.getElementById('newTeamId').value.trim();
             const password = document.getElementById('newPassword').value.trim();
+            const adminPass = document.getElementById('adminPass').value.trim();
             const messageEl = document.getElementById('adminMessage');
 
-            if (!teamId || !password) {
+            if (!teamId || !password || !adminPass) {
                 messageEl.style.color = "#ff5555";
-                messageEl.innerText = "Please fill in both fields.";
+                messageEl.innerText = "Please fill in all fields.";
                 return;
             }
 
@@ -42,7 +47,7 @@
                 const response = await fetch('/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ teamId, password })
+                    body: JSON.stringify({ teamId, password, adminPass }) 
                 });
 
                 const data = await response.json();
@@ -51,7 +56,6 @@
                     messageEl.style.color = "#50fa7b";
                     messageEl.innerText = data.message;
                     
-                    // Clear the input boxes for the next team
                     document.getElementById('newTeamId').value = "";
                     document.getElementById('newPassword').value = "";
                     document.getElementById('newTeamId').focus();

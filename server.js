@@ -45,21 +45,29 @@ app.post('/login', async (req, res) => {
 });
 
 // --- ADMIN ROUTE: REGISTER NEW TEAMS ---
+// --- ADMIN ROUTE: REGISTER NEW TEAMS ---
+// Change this to whatever secret phrase you want!
+const SECRET_PASSCODE = process.env.ADMIN_PASSCODE;
+
 app.post('/register', async (req, res) => {
-    const { teamId, password } = req.body;
+    // We now expect 'adminPass' along with the team info
+    const { teamId, password, adminPass } = req.body; 
     
+    // THE BOUNCER: Kick them out if the passcode is wrong
+    if (adminPass !== SECRET_PASSCODE) {
+        return res.status(403).json({ success: false, message: "🚨 Access Denied: Incorrect Organizer Passcode." });
+    }
+
     if (!teamId || !password) {
         return res.status(400).json({ success: false, message: "Missing Team Name or Password." });
     }
 
     try {
-        // 1. Check if this team name is already taken
         const existingTeam = await TeamData.findOne({ teamId: teamId });
         if (existingTeam) {
             return res.status(400).json({ success: false, message: "Error: This Team Name already exists!" });
         }
 
-        // 2. Create the new team and save it to MongoDB
         const newTeam = new TeamData({ teamId: teamId, password: password });
         await newTeam.save();
         
@@ -70,7 +78,6 @@ app.post('/register', async (req, res) => {
         res.status(500).json({ success: false, message: "Server error while saving." });
     }
 });
-
 app.post('/save', async (req, res) => {
     const { teamId, phase, codeText } = req.body;
     
