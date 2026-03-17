@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const app = express();
 app.use(express.json()); 
-app.use(express.static('public')); 
+app.use(express.static('public')); // This is why index.html must be in the 'public' folder
 
 // --- DATABASE CONNECTION ---
 const mongoURI = process.env.MONGO_URI; 
@@ -21,34 +21,41 @@ const teamSchema = new mongoose.Schema({
 });
 const TeamData = mongoose.model('TeamData', teamSchema);
 
+// --- MANUAL TEAM CREDENTIALS ---
+const registeredTeams = [
+    { teamId: "team_alpha", password: "pass_alpha123" },
+    { teamId: "team_beta", password: "pass_beta456" },
+    { teamId: "admin", password: "admin" } // Use this to test!
+];
+
 // --- ROUTES ---
 app.post('/login', (req, res) => {
-    const { teamId } = req.body;
+    const { teamId, password } = req.body;
     
-    // Check if they typed a name, and let them straight in
-    if (teamId && teamId.trim() !== "") {
+    const isValidTeam = registeredTeams.find(
+        team => team.teamId === teamId && team.password === password
+    );
+
+    if (isValidTeam) {
         res.json({ success: true });
     } else {
-        res.status(400).json({ success: false, message: "Team Name is required." });
+        res.status(401).json({ success: false, message: "Invalid Team Name or Password." });
     }
 });
 
 app.post('/save', async (req, res) => {
     const { teamId, phase, codeText } = req.body;
     
-    // Basic check to make sure the data is formatted correctly
     if (!teamId || (phase !== 1 && phase !== 2)) {
         return res.status(400).json({ error: "Invalid request." });
     }
 
     try {
-        // Find their team folder in the cloud, or create a new one
         let teamDoc = await TeamData.findOne({ teamId: teamId });
         if (!teamDoc) {
             teamDoc = new TeamData({ teamId: teamId });
         }
 
-        // Save the code based on the phase
         if (phase === 1) teamDoc.p1Code = codeText;
         if (phase === 2) teamDoc.p2Code = codeText;
 

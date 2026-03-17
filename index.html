@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Solve - IET | BITOTSAV '26</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Orbitron:wght@500;700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script> 
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loginScreen" class="container">
+        <div class="header-badges">
+            <span class="badge bitotsav">BITOTSAV 2026</span>
+            <span class="badge iet">IET Student Chapter</span>
+        </div>
+        <h1 class="glow-text">SPLIT SOLVE</h1>
+        <p class="subtitle">A true test of synchronization and logic.</p>
+        
+        <input type="text" id="teamId" placeholder="Enter Team Name...">
+        <input type="password" id="password" placeholder="Enter Password..." style="margin-top: 10px;"> 
+        
+        <button onclick="login()" class="cyber-btn" style="margin-top: 20px;">Login</button>
+        <p id="loginMessage" style="color: #ff5555;"></p>
+        
+        <p class="made-by">made with love ❤️ by Team IET</p>
+    </div>
+
+    <div id="startScreen" class="container hidden">
+        <h1 class="glow-text">Ready to Begin?</h1>
+        <p class="subtitle">Make sure both team members are ready. The timer begins immediately.</p>
+        <ul style="text-align: left; margin: 20px auto; max-width: 400px; line-height: 1.6; color: #ccc;">
+            <li>No tab switching allowed.</li>
+            <li>Copy/pasting is strictly disabled.</li>
+            <li>Phase 1 coder cannot talk to Phase 2 coder yet.</li>
+        </ul>
+        <button onclick="startPhase1()" class="cyber-btn">Start Phase 1</button>
+    </div>
+
+    <div id="codingScreen" class="container hidden" style="max-width: 900px;">
+        <h2 id="phaseTitle" class="glow-text">Phase 1: Member 1</h2>
+        <h3 id="timer">Time Left: 5:00</h3>
+        
+        <textarea id="codeEditor"></textarea>
+        
+        <button id="actionBtn" onclick="savePhase()" class="cyber-btn" style="margin-top: 20px;">Save and Continue</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

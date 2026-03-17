@@ -10,7 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script> <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script> 
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="loginScreen" class="container">
@@ -22,10 +24,23 @@
         <p class="subtitle">A true test of synchronization and logic.</p>
         
         <input type="text" id="teamId" placeholder="Enter Team Name...">
-        <button onclick="login()" class="cyber-btn">Start Event</button>
+        <input type="password" id="password" placeholder="Enter Password..." style="margin-top: 10px;"> 
+        
+        <button onclick="login()" class="cyber-btn" style="margin-top: 20px;">Login</button>
         <p id="loginMessage" style="color: #ff5555;"></p>
         
         <p class="made-by">made with love ❤️ by Team IET</p>
+    </div>
+
+    <div id="startScreen" class="container hidden">
+        <h1 class="glow-text">Ready to Begin?</h1>
+        <p class="subtitle">Make sure both team members are ready. The timer begins immediately.</p>
+        <ul style="text-align: left; margin: 20px auto; max-width: 400px; line-height: 1.6; color: #ccc;">
+            <li>No tab switching allowed.</li>
+            <li>Copy/pasting is strictly disabled.</li>
+            <li>Phase 1 coder cannot talk to Phase 2 coder yet.</li>
+        </ul>
+        <button onclick="startPhase1()" class="cyber-btn">Start Phase 1</button>
     </div>
 
     <div id="codingScreen" class="container hidden" style="max-width: 900px;">
