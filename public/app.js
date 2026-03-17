@@ -17,14 +17,31 @@ function initEditor() {
             indentUnit: 4
         });
 
+        // Anti-paste block
         editorInstance.on('beforeChange', (instance, change) => {
             if (change.origin === 'paste') {
                 change.cancel(); 
                 alert("🚨 ANTI-CHEAT WARNING 🚨\n\nCopy-pasting is strictly disabled!");
             }
         });
+
+        // NEW: AUTO-SAVE ON EVERY KEYSTROKE
+        editorInstance.on('change', () => {
+            if (currentTeam) {
+                // Saves code to browser memory under their specific team name and phase
+                localStorage.setItem(`ss_backup_${currentTeam}_${currentPhase}`, editorInstance.getValue());
+            }
+        });
+    }
+}
+
+// NEW HELPER: Loads the backup if it exists
+function restoreCodeBackup() {
+    const backupCode = localStorage.getItem(`ss_backup_${currentTeam}_${currentPhase}`);
+    if (backupCode) {
+        editorInstance.setValue(backupCode);
     } else {
-        editorInstance.setValue("");
+        editorInstance.setValue(""); // Start empty if no backup
     }
 }
 
@@ -48,15 +65,17 @@ async function login() {
             document.getElementById('loginMessage').innerText = "";
             const now = Date.now();
             
-            // SERVER CHECK: Does this team have an active timer running in the cloud?
+            // SERVER CHECK: Does this team have an active timer running?
             if (data.currentPhase !== "0" && data.currentPhase !== "done" && data.phaseEndTime > now) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('codingScreen').classList.remove('hidden');
-                initEditor(); // Starts empty, as requested
                 
-                // Route them to their exact phase and official cloud time
+                initEditor(); 
+                
+                // Route them to their exact phase and load their code!
                 if (data.currentPhase === "1") {
                     currentPhase = 1;
+                    restoreCodeBackup(); // LOAD BACKUP HERE
                     startTimer(data.phaseEndTime, "coding");
                 } 
                 else if (data.currentPhase === "switch") {
@@ -72,10 +91,14 @@ async function login() {
                     const btn = document.getElementById('actionBtn');
                     btn.innerText = "Final Save";
                     btn.classList.remove('hidden');
+                    restoreCodeBackup(); // LOAD BACKUP HERE
                     startTimer(data.phaseEndTime, "coding");
                 }
+            } else if (data.currentPhase === "done") {
+                // BOUNCER: Block teams that already finished
+                document.getElementById('loginMessage').innerText = "Event already completed! You cannot log in again.";
             } else {
-                // New session
+                // Brand new session
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('startScreen').classList.remove('hidden');
             }
@@ -90,9 +113,11 @@ async function login() {
 async function startPhase1() {
     document.getElementById('startScreen').classList.add('hidden');
     document.getElementById('codingScreen').classList.remove('hidden');
-    initEditor();
+    currentPhase = 1;
     
-    // Tell the server to lock in the official End Time
+    initEditor();
+    restoreCodeBackup(); // Start fresh or load existing
+    
     const response = await fetch('/set-timer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -107,7 +132,6 @@ function startTimer(absoluteEndTime, mode) {
     clearInterval(timerInterval);
     
     function tick() {
-        // Calculate difference between cloud end time and right now
         const timeLeft = Math.floor((absoluteEndTime - Date.now()) / 1000);
         
         if (timeLeft <= 0) {
@@ -123,7 +147,7 @@ function startTimer(absoluteEndTime, mode) {
         }
     }
     
-    tick(); // Run immediately so there is no 1-second delay
+    tick(); 
     timerInterval = setInterval(tick, 1000);
 }
 
@@ -137,6 +161,9 @@ function updateTimerDisplay(timeLeft) {
 async function savePhase() { 
     clearInterval(timerInterval);
     const codeText = editorInstance ? editorInstance.getValue() : "";
+
+    // 🧹 CLEANUP: Delete the local backup since we are saving it to the cloud now
+    localStorage.removeItem(`ss_backup_${currentTeam}_${currentPhase}`);
 
     let nextPhase, nextDuration;
 
@@ -153,7 +180,6 @@ async function savePhase() {
         nextDuration = 0;
     }
 
-    // Save code AND tell the server to start the next timer phase
     const response = await fetch('/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -177,7 +203,10 @@ async function startPhase2() {
     document.getElementById('phaseTitle').innerText = "Phase 2: Member 2";
     
     editorInstance.getWrapperElement().classList.remove('hidden');
-    editorInstance.setValue(""); 
+    
+    initEditor();
+    restoreCodeBackup(); // Load backup or start fresh for Phase 2
+    
     setTimeout(() => { editorInstance.refresh(); editorInstance.focus(); }, 10);
 
     const btn = document.getElementById('actionBtn');
