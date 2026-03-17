@@ -16,6 +16,7 @@ mongoose.connect(mongoURI)
 // --- DATABASE SCHEMA ---
 const teamSchema = new mongoose.Schema({
     teamId: String,
+    password: String,
     p1Code: { type: String, default: "" },
     p2Code: { type: String, default: "" }
 });
@@ -29,19 +30,20 @@ const registeredTeams = [
 ];
 
 // --- ROUTES ---
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { teamId, password } = req.body;
-    
-    const isValidTeam = registeredTeams.find(
-        team => team.teamId === teamId && team.password === password
-    );
-
-    if (isValidTeam) {
-        res.json({ success: true });
-    } else {
-        res.status(401).json({ success: false, message: "Invalid Team Name or Password." });
+    try {
+        const team = await TeamData.findOne({ teamId: teamId, password: password });
+        if (team) {
+            res.json({ success: true });
+        } else {
+            res.status(401).json({ success: false, message: "Invalid Team Name or Password." });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server error." });
     }
 });
+
 
 app.post('/save', async (req, res) => {
     const { teamId, phase, codeText } = req.body;
