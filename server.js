@@ -21,7 +21,9 @@ const teamSchema = new mongoose.Schema({
     p2Code: { type: String, default: "" },
     // NEW: Cloud Timer Tracking
     currentPhase: { type: String, default: "0" }, 
-    phaseEndTime: { type: Number, default: 0 } 
+    phaseEndTime: { type: Number, default: 0 },
+    // NEW: The digital wristband
+    sessionToken: { type: String, default: "" }
 });
 const TeamData = mongoose.model('TeamData', teamSchema);
 
@@ -29,35 +31,7 @@ const SECRET_PASSCODE = process.env.ADMIN_PASSCODE;
 
 // --- ROUTES ---
 
-app.post('/login', async (req, res) => {
-    const { teamId, password } = req.body;
-    try {
-        const team = await TeamData.findOne({ teamId: teamId });
-        
-        if (team && team.password === password) {
-            
-            // 🚨 THE NEW BOUNCER: Block them if they already finished!
-            if (team.currentPhase === "done") {
-                return res.status(403).json({ 
-                    success: false, 
-                    message: "Event already completed! You cannot log in again." 
-                });
-            }
 
-            // If not done, let them in and send their timer data
-            res.json({ 
-                success: true, 
-                currentPhase: team.currentPhase,
-                phaseEndTime: team.phaseEndTime
-            });
-            
-        } else {
-            res.status(401).json({ success: false, message: "Invalid Team Name or Password." });
-        }
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Server error." });
-    }
-});
 // NEW ROUTE: Sets the official end time in the cloud
 app.post('/set-timer', async (req, res) => {
     const { teamId, phase, durationSeconds } = req.body;
@@ -74,18 +48,57 @@ app.post('/set-timer', async (req, res) => {
     }
 });
 
+// --- UPDATED LOGIN ROUTE ---
+app.post('/login', async (req, res) => {
+    const { teamId, password } = req.body;
+    try {
+        const team = await TeamData.findOne({ teamId: teamId });
+        
+        if (team && team.password === password) {
+            if (team.currentPhase === "done") {
+                return res.status(403).json({ success: false, message: "Event already completed!" });
+            }
+
+            // Generate a random wristband (e.g., "7f8a9b")
+            const newToken = Math.random().toString(36).substring(2, 10);
+            team.sessionToken = newToken;
+            await team.save();
+
+            res.json({ 
+                success: true, 
+                currentPhase: team.currentPhase,
+                phaseEndTime: team.phaseEndTime,
+                sessionToken: newToken // Send it to the frontend!
+            });
+            
+        } else {
+            res.status(401).json({ success: false, message: "Invalid Team Name or Password." });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Server error." });
+    }
+});
+
+// --- UPDATED SAVE ROUTE ---
 app.post('/save', async (req, res) => {
-    const { teamId, phase, codeText, nextPhase, nextDurationSeconds } = req.body;
+    // We now expect the frontend to pass the sessionToken
+    const { teamId, phase, codeText, nextPhase, nextDurationSeconds, sessionToken } = req.body;
     
     try {
         let teamDoc = await TeamData.findOne({ teamId: teamId });
         if (!teamDoc) return res.status(400).json({ error: "Team not found." });
 
-        // Save the code
+        // THE SECURITY CHECK: Does this laptop's wristband match the database?
+        if (teamDoc.sessionToken !== sessionToken) {
+            return res.status(403).json({ 
+                success: false, 
+                error: "SECURITY ALERT: This team was logged into from another device. Save rejected!" 
+            });
+        }
+
         if (phase === 1) teamDoc.p1Code = codeText;
         if (phase === 2) teamDoc.p2Code = codeText;
 
-        // Update the timer for the *next* phase
         const newEndTime = nextDurationSeconds > 0 ? Date.now() + (nextDurationSeconds * 1000) : 0;
         teamDoc.currentPhase = nextPhase;
         teamDoc.phaseEndTime = newEndTime;
@@ -93,7 +106,6 @@ app.post('/save', async (req, res) => {
         await teamDoc.save(); 
         res.json({ success: true, endTime: newEndTime });
     } catch (err) {
-        console.error("Database Save Error:", err);
         res.status(500).json({ error: "Failed to save to cloud." });
     }
 });

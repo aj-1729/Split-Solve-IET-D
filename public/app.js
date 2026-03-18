@@ -2,6 +2,7 @@ let editorInstance;
 let currentTeam = "";
 let currentPhase = 1;
 let timerInterval;
+let currentSessionToken = ""; // Holds our security wristband
 
 const CODING_TIME = 300; // 5 minutes
 const EXPLAIN_TIME = 60; // 1 minute
@@ -62,6 +63,10 @@ async function login() {
 
         if (response.ok && data.success) {
             currentTeam = teamId;
+            
+            // 🔒 THE MISSING PIECE: Grab the wristband from the server!
+            currentSessionToken = data.sessionToken; 
+            
             document.getElementById('loginMessage').innerText = "";
             const now = Date.now();
             
@@ -175,7 +180,8 @@ async function savePhase() {
         nextPhase = "switch";
         nextDuration = EXPLAIN_TIME;
     } else {
-        document.getElementById('codingScreen').innerHTML = "<h1 class='glow-text'>Event Completed!</h1><p class='subtitle'>Great job. Your files are safely stored.</p>";
+        // UI UPGRADE: Uses the new premium CSS classes for the finish screen
+        document.getElementById('codingScreen').innerHTML = "<h1 class='hero-title' style='margin-bottom: 20px;'>EVENT COMPLETED</h1><p class='instruction-text'>Great job. Your files are securely locked in the database.</p>";
         nextPhase = "done";
         nextDuration = 0;
     }
@@ -188,10 +194,19 @@ async function savePhase() {
             phase: currentPhase, 
             codeText: codeText,
             nextPhase: nextPhase,
-            nextDurationSeconds: nextDuration
+            nextDurationSeconds: nextDuration,
+            sessionToken: currentSessionToken // 🔒 THE NEW SECURITY WRISTBAND
         })
     });
+    
     const data = await response.json();
+
+    // 🚨 SECURITY CATCH: Kick them out if they saved from another device
+    if (!data.success && data.error) {
+        alert(data.error);
+        window.location.reload(); 
+        return;
+    }
 
     if (currentPhase === 1 && data.success) {
         startTimer(data.endTime, "switching");
