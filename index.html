@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Split Solve - IET | BITOTSAV '26</title>
+    <title>Split Solve - IET On Campus</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Orbitron:wght@500;700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Orbitron:wght@500;700;900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
@@ -15,41 +15,59 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="loginScreen" class="container">
-        <div class="header-badges">
-            <span class="badge bitotsav">BITOTSAV 2026</span>
-            <span class="badge iet">IET Student Chapter</span>
+    
+    <div id="loginScreen" class="glass-plinth relative-plinth">
+        
+        <div class="logo-centerpiece">
+            <img src="iet_logo.png" alt="IET Logo" id="iet-logo">
         </div>
-        <h1 class="glow-text">SPLIT SOLVE</h1>
-        <p class="subtitle">A true test of synchronization and logic.</p>
+
+        <div class="title-stack">
+            <p class="presents-text">IET ON CAMPUS PRESENTS...</p>
+            <h1 class="hero-title">SPLIT SOLVE</h1>
+        </div>
         
-        <input type="text" id="teamId" placeholder="Enter Team Name...">
-        <input type="password" id="password" placeholder="Enter Password..." style="margin-top: 10px;"> 
+        <div class="input-group">
+            <input type="text" id="teamId" placeholder="Team ID" autocomplete="off">
+            <input type="password" id="password" placeholder="Passcode">
+        </div>
         
-        <button onclick="login()" class="cyber-btn" style="margin-top: 20px;">Login</button>
-        <p id="loginMessage" style="color: #ff5555;"></p>
-        
-        <p class="made-by">made with love ❤️ by Team IET</p>
+        <button onclick="login()" class="cyber-btn pulse-glow">INITIALIZE LINK</button>
+        <p id="loginMessage" class="error-msg"></p>
     </div>
 
-    <div id="startScreen" class="container hidden">
-        <h1 class="glow-text">Ready to Begin?</h1>
-        <p class="subtitle">Make sure both team members are ready. The timer begins immediately.</p>
-        <ul style="text-align: left; margin: 20px auto; max-width: 400px; line-height: 1.6; color: #ccc;">
-            <li>No tab switching allowed.</li>
-            <li>Copy/pasting is strictly disabled.</li>
-            <li>Phase 1 coder cannot talk to Phase 2 coder yet.</li>
-        </ul>
-        <button onclick="startPhase1()" class="cyber-btn">Start Phase 1</button>
+    <div id="startScreen" class="glass-plinth hidden">
+        <h1 class="section-title">Awaiting Synchronization</h1>
+        <p class="instruction-text">Ensure both operatives are stationed. The 5-minute countdown engages immediately upon sequence start.</p>
+        
+        <div class="rules-box">
+            <p class="rules-header">ENGAGEMENT PROTOCOLS</p>
+            <ul>
+                <li><span>[01]</span> Browser tab switching is heavily monitored and restricted.</li>
+                <li><span>[02]</span> Clipboard operations (Copy/Paste) are permanently disabled.</li>
+                <li><span>[03]</span> Total silence required until the Switch Phase is initiated.</li>
+            </ul>
+        </div>
+        
+        <button onclick="startPhase1()" class="cyber-btn pulse-glow">COMMENCE PHASE 1</button>
     </div>
 
-    <div id="codingScreen" class="container hidden" style="max-width: 900px;">
-        <h2 id="phaseTitle" class="glow-text">Phase 1: Member 1</h2>
-        <h3 id="timer">Time Left: 5:00</h3>
+    <div id="codingScreen" class="glass-plinth editor-plinth hidden">
+        <div class="editor-top-bar">
+            <div class="phase-badge">
+                <span class="pulse-dot"></span>
+                <span id="phaseTitle">Phase 1: Member 1</span>
+            </div>
+            <div id="timer" class="timer-display">05:00</div>
+        </div>
         
-        <textarea id="codeEditor"></textarea>
+        <div class="editor-wrapper">
+            <textarea id="codeEditor"></textarea>
+        </div>
         
-        <button id="actionBtn" onclick="savePhase()" class="cyber-btn" style="margin-top: 20px;">Save and Continue</button>
+        <div class="editor-bottom-bar">
+            <button id="actionBtn" onclick="savePhase()" class="cyber-btn">SAVE & TRANSITION</button>
+        </div>
     </div>
 
     <script src="app.js"></script>
