@@ -2,10 +2,12 @@ let editorInstance;
 let currentTeam = "";
 let currentPhase = 1;
 let timerInterval;
-let currentSessionToken = ""; // Holds our security wristband
+let currentSessionToken = ""; 
 
-const CODING_TIME = 300; // 5 minutes
-const EXPLAIN_TIME = 60; // 1 minute
+// ⏱️ THE NEW CUSTOM TIMERS (in seconds)
+const PHASE_1_TIME = 720; // 12 minutes
+const EXPLAIN_TIME = 150; // 2.5 minutes
+const PHASE_2_TIME = 600; // 10 minutes
 
 function initEditor() {
     if (!editorInstance) {
@@ -18,7 +20,6 @@ function initEditor() {
             indentUnit: 4
         });
 
-        // Anti-paste block
         editorInstance.on('beforeChange', (instance, change) => {
             if (change.origin === 'paste') {
                 change.cancel(); 
@@ -26,23 +27,20 @@ function initEditor() {
             }
         });
 
-        // NEW: AUTO-SAVE ON EVERY KEYSTROKE
         editorInstance.on('change', () => {
             if (currentTeam) {
-                // Saves code to browser memory under their specific team name and phase
                 localStorage.setItem(`ss_backup_${currentTeam}_${currentPhase}`, editorInstance.getValue());
             }
         });
     }
 }
 
-// NEW HELPER: Loads the backup if it exists
 function restoreCodeBackup() {
     const backupCode = localStorage.getItem(`ss_backup_${currentTeam}_${currentPhase}`);
     if (backupCode) {
         editorInstance.setValue(backupCode);
     } else {
-        editorInstance.setValue(""); // Start empty if no backup
+        editorInstance.setValue(""); 
     }
 }
 
@@ -63,29 +61,25 @@ async function login() {
 
         if (response.ok && data.success) {
             currentTeam = teamId;
-            
-            // 🔒 THE MISSING PIECE: Grab the wristband from the server!
             currentSessionToken = data.sessionToken; 
             
             document.getElementById('loginMessage').innerText = "";
             const now = Date.now();
             
-            // SERVER CHECK: Does this team have an active timer running?
             if (data.currentPhase !== "0" && data.currentPhase !== "done" && data.phaseEndTime > now) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('codingScreen').classList.remove('hidden');
                 
                 initEditor(); 
                 
-                // Route them to their exact phase and load their code!
                 if (data.currentPhase === "1") {
                     currentPhase = 1;
-                    restoreCodeBackup(); // LOAD BACKUP HERE
+                    restoreCodeBackup(); 
                     startTimer(data.phaseEndTime, "coding");
                 } 
                 else if (data.currentPhase === "switch") {
                     currentPhase = 1;
-                    document.getElementById('phaseTitle').innerText = "Call your partner and explain everything to him till the time goes off!";
+                    document.getElementById('phaseTitle').innerText = "Switch Phase: Explain your code!";
                     editorInstance.getWrapperElement().classList.add('hidden');
                     document.getElementById('actionBtn').classList.add('hidden');
                     startTimer(data.phaseEndTime, "switching");
@@ -96,14 +90,12 @@ async function login() {
                     const btn = document.getElementById('actionBtn');
                     btn.innerText = "Final Save";
                     btn.classList.remove('hidden');
-                    restoreCodeBackup(); // LOAD BACKUP HERE
+                    restoreCodeBackup(); 
                     startTimer(data.phaseEndTime, "coding");
                 }
             } else if (data.currentPhase === "done") {
-                // BOUNCER: Block teams that already finished
                 document.getElementById('loginMessage').innerText = "Event already completed! You cannot log in again.";
             } else {
-                // Brand new session
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('startScreen').classList.remove('hidden');
             }
@@ -121,12 +113,13 @@ async function startPhase1() {
     currentPhase = 1;
     
     initEditor();
-    restoreCodeBackup(); // Start fresh or load existing
+    restoreCodeBackup(); 
     
     const response = await fetch('/set-timer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId: currentTeam, phase: "1", durationSeconds: CODING_TIME })
+        // Uses the 12-minute timer
+        body: JSON.stringify({ teamId: currentTeam, phase: "1", durationSeconds: PHASE_1_TIME })
     });
     const data = await response.json();
     
@@ -160,27 +153,26 @@ function updateTimerDisplay(timeLeft) {
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     document.getElementById('timer').innerText = 
-        `Time Left: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
 async function savePhase() { 
     clearInterval(timerInterval);
     const codeText = editorInstance ? editorInstance.getValue() : "";
 
-    // 🧹 CLEANUP: Delete the local backup since we are saving it to the cloud now
     localStorage.removeItem(`ss_backup_${currentTeam}_${currentPhase}`);
 
     let nextPhase, nextDuration;
 
     if (currentPhase === 1) {
-        document.getElementById('phaseTitle').innerText = "Call your partner and explain everything to him till the time goes off!";
+        document.getElementById('phaseTitle').innerText = "Switch Phase: Explain your code!";
         editorInstance.getWrapperElement().classList.add('hidden');
         document.getElementById('actionBtn').classList.add('hidden');
         
         nextPhase = "switch";
+        // Uses the 2.5-minute timer
         nextDuration = EXPLAIN_TIME;
     } else {
-        // UI UPGRADE: Uses the new premium CSS classes for the finish screen
         document.getElementById('codingScreen').innerHTML = "<h1 class='hero-title' style='margin-bottom: 20px;'>EVENT COMPLETED</h1><p class='instruction-text'>Great job. Your files are securely locked in the database.</p>";
         nextPhase = "done";
         nextDuration = 0;
@@ -195,13 +187,12 @@ async function savePhase() {
             codeText: codeText,
             nextPhase: nextPhase,
             nextDurationSeconds: nextDuration,
-            sessionToken: currentSessionToken // 🔒 THE NEW SECURITY WRISTBAND
+            sessionToken: currentSessionToken 
         })
     });
     
     const data = await response.json();
 
-    // 🚨 SECURITY CATCH: Kick them out if they saved from another device
     if (!data.success && data.error) {
         alert(data.error);
         window.location.reload(); 
@@ -220,7 +211,7 @@ async function startPhase2() {
     editorInstance.getWrapperElement().classList.remove('hidden');
     
     initEditor();
-    restoreCodeBackup(); // Load backup or start fresh for Phase 2
+    restoreCodeBackup(); 
     
     setTimeout(() => { editorInstance.refresh(); editorInstance.focus(); }, 10);
 
@@ -231,7 +222,8 @@ async function startPhase2() {
     const response = await fetch('/set-timer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ teamId: currentTeam, phase: "2", durationSeconds: CODING_TIME })
+        // Uses the 10-minute timer
+        body: JSON.stringify({ teamId: currentTeam, phase: "2", durationSeconds: PHASE_2_TIME })
     });
     const data = await response.json();
     
