@@ -291,7 +291,6 @@ input::placeholder {
 .timer-display {
     font-family: 'Fira Code', monospace;
     font-size: 2rem;
-    font-weight: bold;
     color: #ff4a4a;
     text-shadow: 0 0 15px rgba(255, 74, 74, 0.5);
     background: rgba(0,0,0,0.3);
